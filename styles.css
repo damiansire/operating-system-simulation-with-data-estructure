@@ -1,0 +1,17 @@
+.fileContainer{
+    border: solid black 1px;
+}
+
+.fileContainer{
+    width: 78px;
+    padding: 5px;
+}
+.fileIcon{
+    width: 78px;
+}
+.fileName{
+    text-align: center;
+}
+#fileList{
+    display: flex;
+}
