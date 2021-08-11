@@ -5,6 +5,7 @@
 .fileContainer{
     width: 78px;
     padding: 5px;
+    cursor: pointer;
 }
 .fileIcon{
     width: 78px;
@@ -14,4 +15,18 @@
 }
 #fileList{
     display: flex;
+}
+
+.contextual-menu-list{
+    list-style-type:none;
+    text-align: center;
+}
+
+.contextual-menu{
+    position: absolute;
+    border: solid 2px black;
+    width: 150px;
+    display: none;
+    top: 0px;
+
 }

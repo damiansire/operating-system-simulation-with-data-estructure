@@ -11,19 +11,30 @@
 
 <body>
     <div id="fileList">
-
-        <div class="fileContainer">
-            <div class="fileIconContainer">
-                <img class="fileIcon" src="https://thumbs.dreamstime.com/b/icono-de-la-carpeta-15140345.jpg">
-            </div>
-            <div class="fileName">
-                El nombre
-            </div>
-        </div>
-
     </div>
 
+    <div class="contextual-menu">
+        <ul class="contextual-menu-list">
+            <li><button> Crear carpeta </button></li>
+        </ul>
+    </div>
     <script src="./scripts.js"></script>
+
+    <script>
+        if (document.addEventListener) {
+            document.addEventListener('contextmenu', function (e) {
+                e.preventDefault();
+                const contextualMenu = document.getElementsByClassName("contextual-menu")[0];
+                contextualMenu.style.display = "block";
+                contextualMenu.style.left = `${e.clientX}px`;
+                contextualMenu.style.top = `${e.clientY}px`;
+            }, false);
+        } else {
+            document.attachEvent('oncontextmenu', function () {
+                window.event.returnValue = false;
+            });
+        }
+    </script>
 </body>
 
 </html>

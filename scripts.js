@@ -26,7 +26,6 @@ class WindowsRepository {
         this.programRegister = new ProgramRegister();
     }
     getElementIcon(ext) {
-        debugger;
         return this.programRegister.getProgramIcon(ext);
     }
 }
@@ -46,7 +45,6 @@ class TreeNode {
         return this.ext;
     }
 }
-
 
 class Tree {
     constructor() {
@@ -76,17 +74,19 @@ class UIDao {
         return this.selectedNode.children;
     }
 
+    openFolder(name, ext) {
+        console.log("Abriendo la carpeta ", name, " ", ext)
+    }
+
 }
 
-
-
-class UIGenerate {
+class UIGenerateHtml {
     static getUiElementHtml(name, ext = "") {
         //Meter esto en una clase global
         let windowsRepository = new WindowsRepository();
         let imgIcon = windowsRepository.getElementIcon(ext);
         return `        
-        <div class="fileContainer">
+        <div class="fileContainer" data-name="${name}" data-ext="${ext}">
             <div class="fileIconContainer">
                 <img class="fileIcon" src="${imgIcon}">
             </div>
@@ -96,7 +96,6 @@ class UIGenerate {
         </div>`
     }
 }
-
 
 class UIDraw {
     constructor() {
@@ -112,19 +111,48 @@ class UIDraw {
     renderElement(elementNode) {
         let ext = elementNode.getExtension();
         let name = elementNode.getName();
-        let html = UIGenerate.getUiElementHtml(name, ext)
+        let html = UIGenerateHtml.getUiElementHtml(name, ext)
         this.fileList.insertAdjacentHTML('beforeend', html);
     }
 }
+
+class FolderController {
+    constructor() {
+        this.InitEventListener();
+    }
+    InitEventListener() {
+        document.addEventListener('click', (e) => {
+            let elementClick = e.path.find(x => x.className == "fileContainer");
+            if (elementClick) {
+                let name = elementClick.getAttribute("data-name");
+                let ext = elementClick.getAttribute("data-ext");
+                if (ext) {
+                    uiController.openFile(name)
+                }
+                else {
+                    uiController.openFolder(name, ext)
+                }
+            }
+        })
+    }
+}
+
 
 class UIController {
     constructor() {
         this.UiDao = new UIDao();
         this.UiDraw = new UIDraw();
+        this.FolderController = new FolderController();
     }
     renderElements() {
         let fileNode = this.UiDao.getActualNodeFiles();
         this.UiDraw.renderElements(fileNode)
+    }
+    openFolder(name, ext) {
+        this.UiDao.openFolder(name, ext)
+    }
+    openFile(name) {
+        console.log("No implementado");
     }
 
 }
