@@ -50,23 +50,46 @@ class Tree {
     constructor() {
         this.root = new TreeNode("C:/");
     }
-    insertNodeByPath(name, path, ext) { //Supongamos me viene "System" /
+    insertNode(name, node, ext) { //Supongamos me viene "System" /
         let newNode = new TreeNode(name, ext);
-        this.root.children.push(newNode);
+        node.children.push(newNode);
+    }
+    findChildren(name, node) {
+        return node.children.find(element => element.name === name);
+    }
+    getNextNumberValid(name, node) {
+        //Mejorar performance
+        let usedName = node.children.filter(x => x.name.includes(name)).map(x => x.name.replace(`${name} `, ""));
+        let usedNumbers = usedName.reduce((prev, actual) => {
+            prev[actual] = true;
+            return prev;
+        }, {})
+        let validNumber = 0;
+        let tryNumber = 1;
+        while (!validNumber) {
+            if (usedNumbers[`(${tryNumber})`]) {
+                tryNumber++;
+            }
+            else {
+                validNumber = tryNumber;
+            }
+        }
+        return validNumber;
+
     }
 }
 
 class UIDao {
     constructor() {
         this.fileSystem = new Tree();
-        this.fileSystem.insertNodeByPath("System", "C:/");
-        this.fileSystem.insertNodeByPath("Archivos de programa", "C:/");
-        this.fileSystem.insertNodeByPath("Usuarios", "C:/");
-        this.fileSystem.insertNodeByPath("Windows", "C:/");
-        this.fileSystem.insertNodeByPath("prueba", "C:/", ".txt");
-        this.fileSystem.insertNodeByPath("twitch", "C:/", ".txt");
-        this.fileSystem.insertNodeByPath("mis gastos", "C:/", ".xls");
         this.selectedNode = this.fileSystem.root;
+        this.fileSystem.insertNode("System", this.selectedNode);
+        this.fileSystem.insertNode("Archivos de programa", this.selectedNode);
+        this.fileSystem.insertNode("Usuarios", this.selectedNode);
+        this.fileSystem.insertNode("Windows", this.selectedNode);
+        this.fileSystem.insertNode("prueba", this.selectedNode, ".txt");
+        this.fileSystem.insertNode("twitch", this.selectedNode, ".txt");
+        this.fileSystem.insertNode("mis gastos", this.selectedNode, ".xls");
     }
 
     getActualNodeFiles() {
@@ -77,6 +100,15 @@ class UIDao {
         let clickedNode = this.selectedNode.children.find(element => element.name === name);
         console.log(clickedNode)
         this.selectedNode = clickedNode;
+    }
+    createNewFolder() {
+        let folderName = "Nueva Carpeta"
+        let exist = this.fileSystem.findChildren("Nueva Carpeta", this.selectedNode);
+        if (exist) {
+            let folderNumber = this.fileSystem.getNextNumberValid("Nueva Carpeta", this.selectedNode);
+            folderName = `${folderName} (${folderNumber})`;
+        }
+        this.fileSystem.insertNode(folderName, this.selectedNode);
     }
 
 }
@@ -133,8 +165,31 @@ class UIDraw {
     }
 }
 
+class ContextualMenu {
+    constructor() {
+        this.initEventListener();
+    }
+    initEventListener() {
+        document.addEventListener('contextmenu', function (e) {
+            e.preventDefault();
+            const contextualMenu = document.getElementsByClassName("contextual-menu")[0];
+            contextualMenu.style.display = "block";
+            contextualMenu.style.left = `${e.clientX}px`;
+            contextualMenu.style.top = `${e.clientY}px`;
+        }, false);
+        document.getElementsByClassName("contextual-menu")[0].addEventListener('click', (event) => {
+            let action = event.target.getAttribute("button-action");
+            if (action === "newFolder") {
+                uiController.createNewFolder();
+                document.getElementsByClassName("contextual-menu")[0].style.display = "none";
+            }
+        })
+    }
+}
+
 class WindowsController {
     constructor() {
+        this.contextualMenu = new ContextualMenu();
         this.InitEventListener();
     }
     InitEventListener() {
@@ -142,7 +197,7 @@ class WindowsController {
             let elementClick = e.path.find(x => x.className == "fileContainer");
             if (elementClick) {
                 let name = elementClick.getAttribute("data-name");
-                let ext = elementClick.getAttribute("data-ext");
+                let ext = elementClick.getAttribute("da ta-ext");
                 if (ext) {
                     uiController.openFile(name)
                 }
@@ -151,13 +206,6 @@ class WindowsController {
                 }
             }
         });
-        document.addEventListener('contextmenu', function (e) {
-            e.preventDefault();
-            const contextualMenu = document.getElementsByClassName("contextual-menu")[0];
-            contextualMenu.style.display = "block";
-            contextualMenu.style.left = `${e.clientX}px`;
-            contextualMenu.style.top = `${e.clientY}px`;
-        }, false);
     }
 }
 
@@ -177,6 +225,10 @@ class UIController {
     }
     openFile(name) {
         console.log("No implementado");
+    }
+    createNewFolder() {
+        this.UiDao.createNewFolder();
+        this.renderElements();
     }
 
 }
