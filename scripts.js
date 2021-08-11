@@ -48,7 +48,7 @@ class TreeNode {
 
 class Tree {
     constructor() {
-        this.root = new TreeNode("/");
+        this.root = new TreeNode("C:/");
     }
     insertNodeByPath(name, path, ext) { //Supongamos me viene "System" /
         let newNode = new TreeNode(name, ext);
@@ -59,23 +59,24 @@ class Tree {
 class UIDao {
     constructor() {
         this.fileSystem = new Tree();
-        this.fileSystem.insertNodeByPath("System", "/");
-        this.fileSystem.insertNodeByPath("Archivos de programa", "/");
-        this.fileSystem.insertNodeByPath("Usuarios", "/");
-        this.fileSystem.insertNodeByPath("Windows", "/");
-        this.fileSystem.insertNodeByPath("prueba", "/", ".txt");
-        this.fileSystem.insertNodeByPath("twitch", "/", ".txt");
-        this.fileSystem.insertNodeByPath("mis gastos", "/", ".xls");
+        this.fileSystem.insertNodeByPath("System", "C:/");
+        this.fileSystem.insertNodeByPath("Archivos de programa", "C:/");
+        this.fileSystem.insertNodeByPath("Usuarios", "C:/");
+        this.fileSystem.insertNodeByPath("Windows", "C:/");
+        this.fileSystem.insertNodeByPath("prueba", "C:/", ".txt");
+        this.fileSystem.insertNodeByPath("twitch", "C:/", ".txt");
+        this.fileSystem.insertNodeByPath("mis gastos", "C:/", ".xls");
         this.selectedNode = this.fileSystem.root;
     }
-    txt
 
     getActualNodeFiles() {
         return this.selectedNode.children;
     }
 
     openFolder(name, ext) {
-        console.log("Abriendo la carpeta ", name, " ", ext)
+        let clickedNode = this.selectedNode.children.find(element => element.name === name);
+        console.log(clickedNode)
+        this.selectedNode = clickedNode;
     }
 
 }
@@ -95,28 +96,44 @@ class UIGenerateHtml {
             </div>
         </div>`
     }
+    static getUiFolderMessageHtml(message) {
+        return `        
+        <div>
+            <h1>${message}</h1 >
+        </div > `
+    }
 }
 
 class UIDraw {
     constructor() {
         this.fileList = document.getElementById("fileList");
     }
-
     renderElements(elements) {
-        elements.forEach(elementNode => {
-            this.renderElement(elementNode);
-        })
+        this.cleanScreen();
+        if (elements) {
+            elements.forEach(elementNode => {
+                this.renderElement(elementNode);
+            })
+        } else {
+            this.setMessageInFolder("Carpeta vacia.")
+        }
     }
-
     renderElement(elementNode) {
         let ext = elementNode.getExtension();
         let name = elementNode.getName();
         let html = UIGenerateHtml.getUiElementHtml(name, ext)
         this.fileList.insertAdjacentHTML('beforeend', html);
     }
+    setMessageInFolder(message) {
+        let html = UIGenerateHtml.getUiFolderMessageHtml(message);
+        this.fileList.insertAdjacentHTML('beforeend', html);
+    }
+    cleanScreen() {
+        this.fileList.innerHTML = "";
+    }
 }
 
-class FolderController {
+class WindowsController {
     constructor() {
         this.InitEventListener();
     }
@@ -133,16 +150,22 @@ class FolderController {
                     uiController.openFolder(name, ext)
                 }
             }
-        })
+        });
+        document.addEventListener('contextmenu', function (e) {
+            e.preventDefault();
+            const contextualMenu = document.getElementsByClassName("contextual-menu")[0];
+            contextualMenu.style.display = "block";
+            contextualMenu.style.left = `${e.clientX}px`;
+            contextualMenu.style.top = `${e.clientY}px`;
+        }, false);
     }
 }
-
 
 class UIController {
     constructor() {
         this.UiDao = new UIDao();
         this.UiDraw = new UIDraw();
-        this.FolderController = new FolderController();
+        this.WindowsController = new WindowsController();
     }
     renderElements() {
         let fileNode = this.UiDao.getActualNodeFiles();
@@ -150,13 +173,13 @@ class UIController {
     }
     openFolder(name, ext) {
         this.UiDao.openFolder(name, ext)
+        this.UiDraw.renderElements();
     }
     openFile(name) {
         console.log("No implementado");
     }
 
 }
-
 
 let uiController = new UIController();
 uiController.renderElements();

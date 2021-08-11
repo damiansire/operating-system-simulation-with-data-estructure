@@ -20,21 +20,6 @@
     </div>
     <script src="./scripts.js"></script>
 
-    <script>
-        if (document.addEventListener) {
-            document.addEventListener('contextmenu', function (e) {
-                e.preventDefault();
-                const contextualMenu = document.getElementsByClassName("contextual-menu")[0];
-                contextualMenu.style.display = "block";
-                contextualMenu.style.left = `${e.clientX}px`;
-                contextualMenu.style.top = `${e.clientY}px`;
-            }, false);
-        } else {
-            document.attachEvent('oncontextmenu', function () {
-                window.event.returnValue = false;
-            });
-        }
-    </script>
 </body>
 
 </html>
